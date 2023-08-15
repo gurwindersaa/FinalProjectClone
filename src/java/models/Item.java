@@ -128,7 +128,8 @@ public class Item implements Serializable {
 
     @Override
     public String toString() {
-        return "models.Item[ itemId=" + itemId + " ]";
+         return  itemId+ category.getCategoryName() +
+                itemName +  price  ;
     }
     
 }

@@ -8,6 +8,8 @@ package dataaccess;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+import models.Category;
 import models.Item;
 import models.User;
 
@@ -15,38 +17,46 @@ import models.User;
  *
  * @author gurwi
  */
-public class ItemDB {
+public class CategoryDB {
 
-    public Item get(int itemId) {
+    public Category get(String categoryName) {
         EntityManager em = DBUtil.getEmFactory().createEntityManager();
         try {
-            Item item = em.find(Item.class, itemId);
-            return item;
+            TypedQuery<Category> query = em.createQuery("SELECT c FROM Category c WHERE c.categoryName = :categoryName", Category.class);
+            query.setParameter("categoryName", categoryName);
+            Category category = query.getSingleResult();
+            return category;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public Category get(int categoryId) {
+    EntityManager em = DBUtil.getEmFactory().createEntityManager();
+    try {
+        Category category = em.find(Category.class, categoryId);
+        return category;
+    } finally {
+        em.close();
+    }
+}
+
+    public List<Category> getAll() throws Exception {
+        EntityManager em = DBUtil.getEmFactory().createEntityManager();
+        try {
+            List<Category> categories = em.createNamedQuery("Category.findAll", Category.class).getResultList();
+            return categories;
         } finally {
             em.close();
         }
     }
 
-    public List<Item> getAll(String owner) throws Exception {
-        EntityManager em = DBUtil.getEmFactory().createEntityManager();
-
-        try {
-            User user = em.find(User.class, owner);
-            return user.getItemList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public void insert(Item item) throws Exception {
+    public void insert(Category category) throws Exception {
         EntityManager em = DBUtil.getEmFactory().createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
-            User user = item.getOwner();
-            user.getItemList().add(item);
             trans.begin();
-            em.persist(item);
-            em.merge(user);
+            em.merge(category);
             trans.commit();
         } catch (Exception ex) {
             trans.rollback();
@@ -54,13 +64,13 @@ public class ItemDB {
             em.close();
         }
     }
-
-    public void update(Item item) throws Exception {
+    
+     public void update(Category category) throws Exception {
         EntityManager em = DBUtil.getEmFactory().createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();
-            em.merge(item);
+            em.merge(category);
             trans.commit();
         } catch (Exception ex) {
             trans.rollback();
@@ -68,21 +78,6 @@ public class ItemDB {
             em.close();
         }
     }
+     
 
-      public void delete(Item item) throws Exception {
-        EntityManager em = DBUtil.getEmFactory().createEntityManager();
-        EntityTransaction trans = em.getTransaction();
-      try{
-          User user = item.getOwner();
-          user.getItemList().remove(item);
-          trans.begin();
-          em.remove(em.merge(item));
-          em.merge(user);
-          trans.commit();
-      }catch(Exception ex){
-          trans.rollback();
-      }finally{
-          em.close();
-      }
-      }
 }

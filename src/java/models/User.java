@@ -59,7 +59,7 @@ public class User implements Serializable {
     private List<Item> itemList;
     @JoinColumn(name = "role", referencedColumnName = "role_id")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    private Role role; 
+    private Role role;
 
     public User() {
     }
